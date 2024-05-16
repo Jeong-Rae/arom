@@ -1,13 +1,18 @@
 package io.github.jeongrae.arom.lotto.controller;
 
-import io.github.jeongrae.arom.lotto.domain.Lotto;
 import io.github.jeongrae.arom.lotto.domain.Lottos;
-import io.github.jeongrae.arom.lotto.dto.LottosDTO;
+import io.github.jeongrae.arom.lotto.domain.PurchaseRecord;
+import io.github.jeongrae.arom.lotto.dto.BuyRequest;
+import io.github.jeongrae.arom.lotto.dto.BuyResponse;
+import io.github.jeongrae.arom.lotto.dto.LottoResponse;
 import io.github.jeongrae.arom.lotto.service.LottoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/lottos")
@@ -15,31 +20,32 @@ import org.springframework.web.bind.annotation.*;
 public class LottoController {
     private final LottoService lottoService;
     // 로또 구매
-    @GetMapping() //컨트롤러 메서드는 명은 client입장,
-    ResponseEntity<LottosDTO> buyLotto(@RequestParam(name = "amount") Integer amount) {
-        Lottos lottos = lottoService.createLotto(amount);
+    @PostMapping("/purchases")
+    public ResponseEntity<BuyResponse> buyLotto(@RequestBody BuyRequest buyRequest) {
+        Lottos lottos = lottoService.generateLotto(buyRequest);
 
-        LottosDTO lottosDTO = LottosDTO.of(lottos);
+        List<LottoResponse> lottoResponses = lottos.getLottos().stream()
+                .map(lotto -> new LottoResponse(lotto.getNumbers()))
+                .collect(Collectors.toList());
 
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(lottosDTO);
+        BuyResponse response = new BuyResponse(lottoResponses);
+        return ResponseEntity.ok(response);
     }
 
-    // 당첨번호 조회
-    @GetMapping("winning-number")
-    ResponseEntity<?> getWinningLottoNumber() {
-        Lotto lotto = lottoService.getWinningNumber();
+    @GetMapping("purchases")
+    public List<PurchaseRecord> findAll() {
+        List<PurchaseRecord> purchaseRecords = lottoService.findAll();
+        System.out.println(purchaseRecords);
+        System.out.println("FIND ALL");
 
-        return ResponseEntity.status(HttpStatus.OK).body(lotto);
+        return purchaseRecords;
     }
 
+    @GetMapping("purchases/{id}")
+    public PurchaseRecord findAll(@PathVariable Long id) {
+        PurchaseRecord purchaseRecord = lottoService.findById(id);
 
-    // 당첨 여부 조회
-    @PostMapping("check")
-    ResponseEntity<?> checkLotto() {
-        boolean result = true;// lottoService.checkLotto();
-
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        System.out.println(purchaseRecord);
+        return purchaseRecord;
     }
 }
