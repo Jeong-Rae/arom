@@ -5,6 +5,7 @@ import io.github.jeongrae.arom.lotto.domain.PurchaseType;
 public record BuyRequest(
         String purchaserName,
         Integer amount,
-        PurchaseType purchaseType
+        PurchaseType purchaseType,
+        Long drawNumberId
 ) {
 }

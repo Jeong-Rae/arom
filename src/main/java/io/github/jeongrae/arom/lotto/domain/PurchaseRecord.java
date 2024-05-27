@@ -22,6 +22,7 @@ public class PurchaseRecord {
     private Integer numberOfTickets;
 
     @Column(name = "purchase_type")
+    //@Enumerated(value = EnumType.STRING)
     private PurchaseType purchaseType;
 
     @Builder
